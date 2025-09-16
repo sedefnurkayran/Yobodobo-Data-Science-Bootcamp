@@ -24,7 +24,7 @@ student3 = {
     "name": "Malek",
     "surname": "Hoffman",
     "age": 30,
-    "score": 95
+    "score": 21
 }
 student4 = {
     "name": "Maria",
@@ -43,71 +43,71 @@ students = [student1, student2, student3, student4, student5]
 # print(students)
 
 #Operators and String Process
-# name = str(input("Enter Your Name: "))
-# nameUpper = name.upper()
+name = str(input("Enter Your Name: "))
+nameUpper = name.upper()
 
-# surname = str(input("Enter Your Surname: "))
-# surnameUpper = surname.upper()
+surname = str(input("Enter Your Surname: "))
+surnameUpper = surname.upper()
 
-# age = str(input("Enter Your Age: "))
-# convAgeInt = int(age)
+age = str(input("Enter Your Age: "))
+convAgeInt = int(age)
 
-# score = str(input("Enter Your Score: "))
-# convScoreInt =  int(score)
+score = str(input("Enter Your Score: "))
+convScoreInt =  int(score)
 
-# if convScoreInt >= 85:
-#     print(f"{name} Passed")
-# else: 
-#     print("Failed")
+if convScoreInt >= 85:
+    print(f"{name} Passed")
+else: 
+    print("Failed")
 
 #Search and Listing
 while True: 
-    print("\n--- Öğrenci Yönetim Sistemi ---")
-    print("1. Öğrenci Ekle")
-    print("2. Öğrencileri Listele")
-    print("3. Öğrenci Ara")
-    print("4. İstatistik")
-    print("5. Çıkış")
-
+    print("\n--- Student Management System ---")
+    print("1. Add Student")
+    print("2. List Students")
+    print("3. Search Student")
+    print("4. Statistics")
+    print("5. Exit")
+ 
     selectedValue  = int(input("Select the process you want to perform: "))
 
     if selectedValue == 1:
-        # newStudentName = str(input("Enter Your Name: ")).capitalize()
-        # newStudentSurname = str(input("Enter Your Surname: ")).capitalize()
-        # newStudentAge = int(input("Enter Your Age: "))
-        # newStudentScore = int(input("Enter Your Score: "))
+        newStudentName = str(input("Enter Your Name: ")).capitalize()
+        newStudentSurname = str(input("Enter Your Surname: ")).capitalize()
+        newStudentAge = int(input("Enter Your Age: "))
+        newStudentScore = int(input("Enter Your Score: "))
     
-        # newStudent = {
-        # "name": newStudentName,
-        # "surname": newStudentSurname,
-        # "age": newStudentAge,
-        # "score" : newStudentScore 
-        # }
+        newStudent = {
+        "name": newStudentName,
+        "surname": newStudentSurname,
+        "age": newStudentAge,
+        "score" : newStudentScore 
+        }
 
-        # for x in students:
-        #     if newStudentName == x["name"] and newStudentSurname == x["surname"]:
-        #         print("The Student is already exist.")    
-        #         break
-        # else:
-        #     students.append(newStudent)
-        #     print("The Student is added" , students)
-        #     break
+        for x in students:
+            if newStudentName == x["name"] and newStudentSurname == x["surname"]:
+                print("The Student is already exist.")    
+                break
+        else:
+            students.append(newStudent)
+            print("The Student is added" , students)
+            break
         print("x")  
     elif selectedValue == 2:
         print("\n--- Students ---")
-        # for std in students:
-        #     print(f"Name: {std['name']}, Surname: {std['surname']}, Age: {std['age']} Score: {std['score']}")
+        for std in students:
+            print(f"Name: {std['name']}, Surname: {std['surname']}, Age: {std['age']} Score: {std['score']}")
 
     elif selectedValue == 3:
-        # searchValue = str(input("Search the Student: ")).capitalize()
-        # for std in students: 
-        #     if (std["name"] == searchValue or std["surname"] == searchValue):
-        #         print(std)
-        #         break
-        # else:
+        searchValue = str(input("Search the Student: ")).capitalize()
+        for std in students: 
+            if (std["name"] == searchValue or std["surname"] == searchValue):
+                print(std)
+                break
+        else:
             print("The Student could not be found")
     elif selectedValue == 4:
-         #Average score of all students 
+        #Average score of all students 
         sumScore =  sum(item['score'] for item in students)
         stdNumber = len(students)
         avrScore = sumScore / stdNumber
@@ -115,6 +115,27 @@ while True:
         #The lowest and highest score
         maxScore =   max(std["score"] for std in students)
         print ("The highest score is:", maxScore)
-    
+        #Only the passed students
+        pssStudentList = []
+        pssStudentList = [f"{s['name']} {s['surname']}" for s in students if s['score'] >= 85]
+        print(pssStudentList)
+        #Squares of all the scores
+        sqrScoreList = []
+        for s in students:
+            # sqrScore = s["score"] ** 2
+            # sqrScoreList.append(sqrScore)
+            sqrScoreList.append(s["score"] ** 2)
+        print(sqrScoreList)
+        #Set
+        stdNamesList = []
+        for s in students:
+            # stdName = s["name"]
+            # stdNamesList.append(stdName)
+            stdNamesList.append(s["name"])
+        stdSet = set(stdNamesList)
+        print(stdSet)       
+        break
     else:    
         break
+
+       
