@@ -105,7 +105,6 @@ print(sd[1,1,:]) #2. block, 2. rows
 # result = array1 + array2
 # print(result)
 
-print("Sedef")
 #Broadcasting with Different Dimensions (row-wise)
 bc_a = np.array([[1, 2, 3], [4, 5, 6]]) #shape = (2,3) 2 rows 3 columns
 bc_b = np.array([10, 20, 30])  # shape = (3,) 1 row 3 columns
@@ -146,3 +145,124 @@ print("Rows: [Bef_Means, Bef_Stds, Aft_Means, Aft_Stds]\n", summary)
 #Broadcasting ile satır bazlı z-normalizasyon uygulandı: her satırdan kendi ortalaması çıkarılıp kendi std’sine bölündü. 
 #İşlem sonrası her satırın ortalaması ≈ 0 ve std’si ≈ 1 oldu (bkz. “Row means/stds (after)” ve otomatik doğrulama). 
 #Böylece tüm satırlar aynı ölçekte karşılaştırılabilir hale geldi.
+
+
+#Data Cleaning
+# rng = np.random.default_rng(42) #the same matrix comes out 
+# r = rng.normal(0,1,(1000,5))
+# print (r)
+print("DATA CLEANING")
+nmb_nan = 5 #number of nan I want to add
+index_b = np.random.choice(r.size, nmb_nan, replace=False) # choosing random indexes to put NaN
+r.ravel()[index_b] = np.nan # adding nan to the data.
+print(r)
+
+#Checking for NaN 
+nan_val= (np.isnan(r).sum())
+print("NaN Values: \n " , nan_val)
+
+#Imputation
+# Ortalama ve medyan sütun bazlı
+col_means = np.nanmean(r, axis=0) #nan lari göz ardi ederek 
+print("Column means:", col_means)
+# col_medians = np.nanmedian(r, axis=0) #medyan bazli doldurmak isteseydim
+# print("Column medians:", col_medians)
+fll =  np.where(np.isnan(r))   # NaN olan indexleri bul
+print("Nan Indexes:\n", fll)
+r[fll] = np.take(col_means, fll[1]) #ortalama ile doldur.
+print("After mean imputation:\n", r)
+
+#Outliers
+#np.clip Method
+#Defining the outliers
+#1. calculate std and mean
+clm_mean = r.mean(axis=0)  #
+clm_std = r.std(axis=0) 
+print("Column Mean: \n", clm_mean)
+print("Column Std: \n", clm_std)
+#2. Alt ve üst sınırları belirle (mean ± 3*std)
+lwr_value = clm_mean - 3*clm_std
+upp_value = clm_mean + 3*clm_std
+print("Lower limits:", lwr_value)
+print("Upper limits:", upp_value)
+#3. Outlier clipping uygula
+r_clipped = np.clip(r,lwr_value,upp_value)
+print("After clipping: \n", r_clipped)
+
+# Outlier adayları (clipping öncesi)
+mask = (r < lwr_value) | (r > upp_value)   # 3σ dışı olanlar
+print("Clipped count:", mask.sum()) #teorik olarak değişmesi beklenenler.
+print("Clipped positions (first 10):", np.argwhere(mask)[:10]) #np.argwhere(mask) returns the coordinates (row, column) of the cells that are True.
+
+#Gerçekten değişen hücreler (clipping sonrası)
+diff_idx = np.argwhere(r != r_clipped)
+print("Changed cells:", diff_idx.shape[0]) #.shape--> boyutlari (Satir,sütun sayisini) döner. .shape[0] = satır sayısı.
+
+#Hangi hücreler, önce/sonra ne oldu?
+outliers = np.argwhere(mask)[:10]
+for i, j in outliers:
+   print(f"Row {i}, Col {j} | Before: {r[i, j]}  -> After: {r_clipped[i, j]}")
+
+##deneme
+# bc_s = np.array([[1, 2, 3], [4, 5, 6]], dtype=float) #np.nan float alir o yüzden cevirdik.
+# nmb_nb = 2  #number of nan I want to add
+# index_s = np.random.choice(bc_s.size, nmb_nb, replace=False) # choosing random indexes to put NaN
+# bc_s.ravel()[index_s] = np.nan # adding nan to the data.
+# print("NaN injected Dataset: \n", bc_s)
+
+# #Checking for NaN 
+# nan_vals= (np.isnan(bc_s).sum())
+# print("NaN Values: \n", nan_vals)
+
+# #Imputation
+# #Ortalama sütun bazlı
+# means_bc_s =  np.nanmean(bc_s, axis=0)
+# print("Column means:", means_bc_s)
+# flls =  np.where(np.isnan(bc_s))   # NaN olan indexleri bul
+# print("Nan Indexes: \n", flls)
+
+# bc_s[flls] = np.take(means_bc_s, flls[1]) #ortalama ile doldur.
+# print("Trial Dataset After mean imputation:\n", bc_s)
+
+# #Outliers
+# clm_mean = bc_s.mean(axis=0)  #
+# clm_std = bc_s.std(axis=0) 
+# #Alt ve üst sınırları belirle (mean ± 3*std)
+# lwr_value = clm_mean - 3*clm_std
+# upp_value = clm_mean + 3*clm_std
+# print("Lower limits:", lwr_value)
+# print("Upper limits:", upp_value)
+# #Outlier clipping uygula
+# bc_s_clipped = np.clip(bc_s,lwr_value,upp_value)
+# print("After clipping: \n", bc_s_clipped)
+
+
+#Physics (Linear Algebra) 
+
+np.random.seed(42)   # reproducible
+n = 3
+A = np.random.rand(n, n)  # 3x3 rastgele matris
+b = np.random.rand(n)     # 3 boyutlu vektör
+
+print("Matrix A:\n", A)
+print("Vector b:\n", b)
+#Solution
+x = np.linalg.solve(A,b)
+print("Solution:", x)
+#Check
+print("Check A@x:", A @ x)
+print("Should equal b:", b)
+
+cond_num = np.linalg.cond(A) #The condition number measures the numerical stability of the matrix A. 
+print("Condition number:", cond_num)
+
+# Objective: The aim was to solve the linear system A · x = b using  a randomly generated square matrix A and vector b.
+# Method: The system was solved using the np.linalg.solve function, and the condition number of the matrix was computed.
+
+# Result: The solution vector x was successfully obtained. 
+# The condition number was calculated as approximately 65.97.
+
+# Comment: This value indicates that the system is moderately conditioned. 
+# Small changes in the input data may be amplified up to about 66 times in the solution. 
+# However, since the value is not excessively high, the solution can be considered 
+# generally reliable and usable.
