@@ -2,33 +2,68 @@ import numpy as np
 from time import perf_counter
 
 #Generate synthetic data: a numerical matrix of at least 1000×5 dimensions
-rng = np.random.default_rng(42) #the same matrix comes out 
-data = rng.normal(0,1,(1000,5))
-print (data)
+def gen_data(n: int = 1000, d: int = 5, seed: int = 42):
+    rng = np.random.default_rng(seed)
+    return rng.normal(loc=50, scale=10, size=(n, d))
 
+data = gen_data()
 #Normalization
-#normalized_dataset = np.array(data)
-
-max_value = data.max()
-min_value = data.min()
-normalized_dataset = (data-min_value)/(max_value-min_value)
-print(normalized_dataset.min(), normalized_dataset.max())
-
+def normalize_minmax(data):
+    max_value = data.max()
+    min_value = data.min()
+    return (data - min_value) / (max_value - min_value)
+normalized_data = normalize_minmax(data)
 #Thresholding
-boolean_mask = data.mean()
-thresholding_dataset = data>boolean_mask
-# print(boolean_mask)
-print(thresholding_dataset)
+def threshold (data):
+    #Tüm veri ortalamasını eşik alır
+    boolean_mask = data.mean()
+    return data>boolean_mask
+thresh = threshold(data)
 
-#Categorical Encoding
-bins = [-np.inf, 0, 1, np.inf]  # -∞ - 0, 0-1, 1 +  constraints.
-labels = [0, 1, 2]
+print("Raw data shape:\n", data.shape, "Raw data:\n", data)
+print("Normalized min/max:", normalized_data.min(), normalized_data.max())
+print("Thresholded sample:\n", thresh[:5])
 
-categorical_dataset = np.digitize(data,bins) -1
-print(categorical_dataset)
+#İlk sütunu kategorilere ayıralım: küçük-orta-büyük
+col = data[:, 0]
+
+categories = np.where(col < 45, "low",
+              np.where(col > 55, "high", "medium"))
+cat = np.unique(categories)
+print("First 10 Categorie:", categories[:10])
+print("Categories Names:", cat)
+
+# region Ilk kisim ilk versiyon
+#Generate synthetic data: a numerical matrix of at least 1000×5 dimensions
+# rng = np.random.default_rng(42) #the same matrix comes out 
+# data = rng.normal(0,1,(1000,5))
+# print (data)
+
+# #Normalization
+# #normalized_dataset = np.array(data)
+
+# max_value = data.max()
+# min_value = data.min()
+# normalized_dataset = (data-min_value)/(max_value-min_value)
+# print(normalized_dataset.min(), normalized_dataset.max())
+
+# #Thresholding
+# boolean_mask = data.mean()
+# thresholding_dataset = data>boolean_mask
+# # print(boolean_mask)
+# print(thresholding_dataset)
+
+# #Categorical Encoding
+# bins = [-np.inf, 0, 1, np.inf]  # -∞ - 0, 0-1, 1 +  constraints.
+# labels = [0, 1, 2]
+
+# categorical_dataset = np.digitize(data,bins) -1
+# print(categorical_dataset)
 
 # categ_dataset = np.digitize(data,bins) # bu sekilde aralik 1,2,3 döndürüyor ancak -1 ekleyince 0,1,2 oluyor.
 # print(categ_dataset)
+
+#endregion
 
 # region ---Arrays---
 
@@ -277,7 +312,7 @@ print("Condition number:", cond_num)
 # region Performance
 print("PERFORMANCE")
 #NumPy (vektorize)  
-# rng = np.random.default_rng(42) #the same matrix comes out 
+rng = np.random.default_rng(42) #the same matrix comes out 
 data = rng.normal(0,1,(1000,5)).astype(float)
 nan_count = 5 #number of nan I want to add
 # 1. NaN ekle
@@ -307,4 +342,8 @@ for i, j in zip(fll_prf[0], fll_prf[1]): #fll_prf[0] = NaN’lerin satırları, 
     data_loop[i, j] = col_means[j]  #j’nci sütunun ortalaması, NaN’leri sütun ortalamasıyla dolduruyorum
 end_loop = perf_counter()
 print("For Loop time:\n", end_loop - start_loop)
+loop_time = end_loop - start_loop
+
+print(f"loop: {loop_time:.4f}s  |  numpy: {vec_time:.4f}s  |  ratio: {loop_time/vec_time:.1f}x faster")
+
 # endregion
