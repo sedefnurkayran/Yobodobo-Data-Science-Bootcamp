@@ -1,21 +1,22 @@
 import numpy as np 
+from time import perf_counter
 
 #Generate synthetic data: a numerical matrix of at least 1000×5 dimensions
 rng = np.random.default_rng(42) #the same matrix comes out 
-r = rng.normal(0,1,(1000,5))
-print (r)
+data = rng.normal(0,1,(1000,5))
+print (data)
 
 #Normalization
-#normalized_dataset = np.array(r)
+#normalized_dataset = np.array(data)
 
-max_value = r.max()
-min_value = r.min()
-normalized_dataset = (r-min_value)/(max_value-min_value)
+max_value = data.max()
+min_value = data.min()
+normalized_dataset = (data-min_value)/(max_value-min_value)
 print(normalized_dataset.min(), normalized_dataset.max())
 
 #Thresholding
-boolean_mask = r.mean()
-thresholding_dataset = r>boolean_mask
+boolean_mask = data.mean()
+thresholding_dataset = data>boolean_mask
 # print(boolean_mask)
 print(thresholding_dataset)
 
@@ -23,13 +24,13 @@ print(thresholding_dataset)
 bins = [-np.inf, 0, 1, np.inf]  # -∞ - 0, 0-1, 1 +  constraints.
 labels = [0, 1, 2]
 
-categorical_dataset = np.digitize(r,bins) -1
+categorical_dataset = np.digitize(data,bins) -1
 print(categorical_dataset)
 
-# categ_dataset = np.digitize(r,bins) # bu sekilde aralik 1,2,3 döndürüyor ancak -1 ekleyince 0,1,2 oluyor.
+# categ_dataset = np.digitize(data,bins) # bu sekilde aralik 1,2,3 döndürüyor ancak -1 ekleyince 0,1,2 oluyor.
 # print(categ_dataset)
 
-#---Arrays---
+# region ---Arrays---
 
 s = np.array([1,2,3,4,5])
 k = np.array([[[5,10,15],[3,6,9],[2,4,6]]])
@@ -43,8 +44,9 @@ z = np.zeros((3,3))
 o = np.ones((4,3))
 i = np.eye(2,2)
 print(a,"\n", b, "\n",z, "\n", o, "\n", i)
+#endregion
 
-###----TRANSACTIONS----
+# region----TRANSACTIONS----
 #Boolen Indexleme
 #1.
 zd = np.array([[3,4],[2,3]])#2D
@@ -89,8 +91,9 @@ print(sd[1,1,:]) #2. block, 2. rows
 # arr = np.array([10,20,30,40,50])
 # idx = [0,2,4]
 # print(zd[idx])
+#endregion
 
-#Brodcasting
+# region Brodcasting
 #NumPy şekilleri (shape) sağdan hizalar. 
 # Eğer sütun sayısı eşitse → satırlara yayılır (satır-bazlı)
 # Eğer satır sayısı eşitse → sütunlara yayılır (sütun-bazlı)
@@ -145,39 +148,40 @@ print("Rows: [Bef_Means, Bef_Stds, Aft_Means, Aft_Stds]\n", summary)
 #Broadcasting ile satır bazlı z-normalizasyon uygulandı: her satırdan kendi ortalaması çıkarılıp kendi std’sine bölündü. 
 #İşlem sonrası her satırın ortalaması ≈ 0 ve std’si ≈ 1 oldu (bkz. “Row means/stds (after)” ve otomatik doğrulama). 
 #Böylece tüm satırlar aynı ölçekte karşılaştırılabilir hale geldi.
-
+#endregion
 
 #Data Cleaning
 # rng = np.random.default_rng(42) #the same matrix comes out 
-# r = rng.normal(0,1,(1000,5))
-# print (r)
+# data = rng.normal(0,1,(1000,5))
+# print (data)
 print("DATA CLEANING")
 nmb_nan = 5 #number of nan I want to add
-index_b = np.random.choice(r.size, nmb_nan, replace=False) # choosing random indexes to put NaN
-r.ravel()[index_b] = np.nan # adding nan to the data.
-print(r)
+index_b = np.random.choice(data.size, nmb_nan, replace=False) # choosing random indexes to put NaN
+# index_b = rng.choice(data.size, nmb_nan, replace=False) # choosing random indexes to put NaN
+data.ravel()[index_b] = np.nan # adding nan to the data.
+print(data)
 
 #Checking for NaN 
-nan_val= (np.isnan(r).sum())
+nan_val= (np.isnan(data).sum())
 print("NaN Values: \n " , nan_val)
 
 #Imputation
 # Ortalama ve medyan sütun bazlı
-col_means = np.nanmean(r, axis=0) #nan lari göz ardi ederek 
+col_means = np.nanmean(data, axis=0) #nan lari göz ardi ederek 
 print("Column means:", col_means)
-# col_medians = np.nanmedian(r, axis=0) #medyan bazli doldurmak isteseydim
+# col_medians = np.nanmedian(data, axis=0) #medyan bazli doldurmak isteseydim
 # print("Column medians:", col_medians)
-fll =  np.where(np.isnan(r))   # NaN olan indexleri bul
+fll =  np.where(np.isnan(data))   # NaN olan indexleri bul
 print("Nan Indexes:\n", fll)
-r[fll] = np.take(col_means, fll[1]) #ortalama ile doldur.
-print("After mean imputation:\n", r)
+data[fll] = np.take(col_means, fll[1]) #ortalama ile doldur.
+print("After mean imputation:\n", data)
 
-#Outliers
+# region Outliers
 #np.clip Method
 #Defining the outliers
 #1. calculate std and mean
-clm_mean = r.mean(axis=0)  #
-clm_std = r.std(axis=0) 
+clm_mean = data.mean(axis=0)  #
+clm_std = data.std(axis=0) 
 print("Column Mean: \n", clm_mean)
 print("Column Std: \n", clm_std)
 #2. Alt ve üst sınırları belirle (mean ± 3*std)
@@ -186,24 +190,25 @@ upp_value = clm_mean + 3*clm_std
 print("Lower limits:", lwr_value)
 print("Upper limits:", upp_value)
 #3. Outlier clipping uygula
-r_clipped = np.clip(r,lwr_value,upp_value)
-print("After clipping: \n", r_clipped)
+data_clipped = np.clip(data,lwr_value,upp_value)
+print("After clipping: \n", data_clipped)
 
 # Outlier adayları (clipping öncesi)
-mask = (r < lwr_value) | (r > upp_value)   # 3σ dışı olanlar
+mask = (data < lwr_value) | (data > upp_value)   # 3σ dışı olanlar
 print("Clipped count:", mask.sum()) #teorik olarak değişmesi beklenenler.
 print("Clipped positions (first 10):", np.argwhere(mask)[:10]) #np.argwhere(mask) returns the coordinates (row, column) of the cells that are True.
 
 #Gerçekten değişen hücreler (clipping sonrası)
-diff_idx = np.argwhere(r != r_clipped)
+diff_idx = np.argwhere(data != data_clipped)
 print("Changed cells:", diff_idx.shape[0]) #.shape--> boyutlari (Satir,sütun sayisini) döner. .shape[0] = satır sayısı.
 
 #Hangi hücreler, önce/sonra ne oldu?
 outliers = np.argwhere(mask)[:10]
 for i, j in outliers:
-   print(f"Row {i}, Col {j} | Before: {r[i, j]}  -> After: {r_clipped[i, j]}")
+   print(f"Row {i}, Col {j} | Before: {data[i, j]}  -> After: {data_clipped[i, j]}")
+#endregion
 
-##deneme
+# region Outliers deneme
 # bc_s = np.array([[1, 2, 3], [4, 5, 6]], dtype=float) #np.nan float alir o yüzden cevirdik.
 # nmb_nb = 2  #number of nan I want to add
 # index_s = np.random.choice(bc_s.size, nmb_nb, replace=False) # choosing random indexes to put NaN
@@ -235,9 +240,9 @@ for i, j in outliers:
 # #Outlier clipping uygula
 # bc_s_clipped = np.clip(bc_s,lwr_value,upp_value)
 # print("After clipping: \n", bc_s_clipped)
+#endregion
 
-
-#Physics (Linear Algebra) 
+# region Physics (Linear Algebra) 
 
 np.random.seed(42)   # reproducible
 n = 3
@@ -266,3 +271,40 @@ print("Condition number:", cond_num)
 # Small changes in the input data may be amplified up to about 66 times in the solution. 
 # However, since the value is not excessively high, the solution can be considered 
 # generally reliable and usable.
+
+#endregion 
+
+# region Performance
+print("PERFORMANCE")
+#NumPy (vektorize)  
+# rng = np.random.default_rng(42) #the same matrix comes out 
+data = rng.normal(0,1,(1000,5)).astype(float)
+nan_count = 5 #number of nan I want to add
+# 1. NaN ekle
+nan_idx = rng.choice(data.size, nan_count, replace=False)
+data.ravel()[nan_idx] = np.nan  
+# 2. Sütun ortalamalarını hesapla
+col_means = np.nanmean(data, axis=0)
+# 3. NaN indexlerini bul
+fll_prf = np.where(np.isnan(data))
+
+def vectorized_imputation(data, fll_prf, col_means):
+    vect_imp = data.copy()
+    start_vec = perf_counter()
+    # 4. NaN olan yerlere sütun ortalamasını yaz
+    data[fll_prf] = np.take(col_means, fll_prf[1])
+    end_vec = perf_counter()
+    return data, end_vec - start_vec
+result, vec_time = vectorized_imputation(data, fll_prf, col_means)
+print("Vectorization time:\n", vec_time)
+
+#Python for loop
+#Preperation kismi ayni
+#Adil ölçüm için: dolduracağımız ayrı bir kopya
+data_loop = data.copy()
+start_loop = perf_counter()
+for i, j in zip(fll_prf[0], fll_prf[1]): #fll_prf[0] = NaN’lerin satırları, fll_prf[1] = NaN’lerin sütunları: zip(...) = bu satır ve sütunları koordinat çiftlerine dönüştürür
+    data_loop[i, j] = col_means[j]  #j’nci sütunun ortalaması, NaN’leri sütun ortalamasıyla dolduruyorum
+end_loop = perf_counter()
+print("For Loop time:\n", end_loop - start_loop)
+# endregion
